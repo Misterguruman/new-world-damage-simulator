@@ -47,7 +47,7 @@ class DamageSimulator:
     def __init__(self, config):
         # Adding this variable
         self.const_offset = config['app_settings']['desired_ap_to_constitution']
-        self.str, self.dex, self.int, self.foc, self.con = config['base_stats'].values()
+        self.base_stats = config['base_stats']
         self.level, self.primary, self.primary_base, self.secondary, self.secondary_dmg = config['character'].values()
         self.attributes, self.primary_data, self.secondary_data = self.pop_attrs(self.primary, self.secondary, config['weapons'])
         self.simulations = self.pop_possibilities(self.const_offset)
@@ -93,14 +93,14 @@ class DamageSimulator:
         else:
             return 0.0
 
-    def calculate_damage_one_attr(self, b_dmg, lvl, attr):
+    def calculate_damage_one_attr(self, b_dmg, lvl, attr, base_attr_level):
         levelscaling = self.calculate_level_scaling(lvl)
         apscaling = self.calculate_ap_scaling(attr)
         base = b_dmg
-        return b_dmg * ( self.calculate_level_scaling(lvl) + self.calculate_ap_scaling(attr) + 1 )
+        return b_dmg * ( self.calculate_level_scaling(lvl) + self.calculate_ap_scaling(attr + base_attr_level) + 1 )
 
-    def calculate_damage_two_attr(self, b_dmg, lvl, attr_primary, attr_secondary):
-        return b_dmg * ( 1 + self.calculate_level_scaling(lvl) + self.calculate_ap_scaling(attr_primary) * 0.9 + self.calculate_ap_scaling(attr_secondary) * 0.65 )
+    def calculate_damage_two_attr(self, b_dmg, lvl, attr_primary, attr_secondary, base_attr_level_primary, base_attr_level_secondary):
+        return b_dmg * ( 1 + self.calculate_level_scaling(lvl) + self.calculate_ap_scaling(attr_primary + base_attr_level_primary) * 0.9 + self.calculate_ap_scaling(attr_secondary + base_attr_level_secondary) * 0.65 )
 
     def pop_attrs(self, primary, secondary, weapon_data):
         ret = []
@@ -133,20 +133,20 @@ class DamageSimulator:
             if self.primary_data['multi']:
                 primary_main_attr = configuration[self.attributes.index(self.primary_data['attr1'])]
                 primary_sub_attr = configuration[self.attributes.index(self.primary_data['attr2'])]
-                ret.append(self.calculate_damage_two_attr(self.primary_base, self.level, primary_main_attr, primary_sub_attr))
+                ret.append(self.calculate_damage_two_attr(self.primary_base, self.level, primary_main_attr, primary_sub_attr, self.base_stats[self.primary_data['attr1']], self.base_stats[self.primary_data['attr2']]))
 
             else:
                 primary_main_attr = configuration[self.attributes.index(self.primary_data['attr1'])]
-                ret.append(self.calculate_damage_one_attr(self.primary_base, self.level, primary_main_attr))
+                ret.append(self.calculate_damage_one_attr(self.primary_base, self.level, primary_main_attr, self.base_stats[self.primary_data['attr1']]))
 
             if self.secondary_data['multi']:
                 secondary_main_attr = configuration[self.attributes.index(self.secondary_data['attr1'])]
                 secondary_sub_attr = configuration[self.attributes.index(self.secondary_data['attr2'])]
-                ret.append(self.calculate_damage_two_attr(self.primary_base, self.level, secondary_main_attr, secondary_sub_attr))
+                ret.append(self.calculate_damage_two_attr(self.primary_base, self.level, secondary_main_attr, secondary_sub_attr, self.base_stats[self.secondary_data['attr1']], self.base_stats[self.secondary_data['attr2']]))
 
             else:
                 secondary_main_attr = configuration[self.attributes.index(self.secondary_data['attr1'])]
-                ret.append(self.calculate_damage_one_attr(self.primary_base, self.level, secondary_main_attr))
+                ret.append(self.calculate_damage_one_attr(self.primary_base, self.level, secondary_main_attr, self.base_stats[self.secondary_data['attr1']]))
 
             ret.append(sum([ret[-1], ret[-2]]))
             yield ret
