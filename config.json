@@ -1,0 +1,70 @@
+{
+    "weapons": {
+        "Great Axe": {
+            "multi": false,
+            "attr1": "Strength"
+        },
+        "War Hammer": {
+            "multi": false,
+            "attr1": "Strength"
+        },
+        "Bow": {
+            "multi": false,
+            "attr1": "Dexterity"
+        },
+        "Ice Gauntlet": {
+            "multi": false,
+            "attr1": "Intelligence"
+        },
+        "Fire Staff": {
+            "multi": false,
+            "attr1": "Intelligence"
+        },
+        "Life Staff": {
+            "multi": false,
+            "attr1": "Focus"
+        },
+        "Spear": {
+            "multi": true,
+            "attr1": "Dexterity",
+            "attr2": "Strength"
+        },
+        "Sword": {
+            "multi": true,
+            "attr1": "Strength",
+            "attr2": "Dexterity"
+        },
+        "Hatchet": {
+            "multi": true,
+            "attr1": "Strength",
+            "attr2": "Dexterity"
+        },
+        "Rapier": {
+            "multi": true,
+            "attr1": "Dexterity",
+            "attr2": "Intelligence"
+        },
+        "Musket": {
+            "multi": true,
+            "attr1": "Dexterity",
+            "attr2": "Intelligence"
+        }
+    },
+    "base_stats": {
+        "Strength": 108,
+        "Dexterity": 22,
+        "Intelligence": 5,
+        "Focus": 11,
+        "Constitution": 49
+    },
+    "character": {
+        "level": 45,
+        "primary_weapon": "Great Axe",
+        "primary_base_dmg": 158,
+        "secondary_weapon": "Hatchet",
+        "secondary_base_dmg": 128
+    },
+    "app_settings": {
+        "desired_ap_to_constitution": 0
+    }
+}
