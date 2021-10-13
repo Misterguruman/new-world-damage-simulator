@@ -156,7 +156,7 @@ class DamageSimulator:
         usable_ap = self.calculate_available_ap(self.level) - const_offset
         
         for x in range(len(self.attributes)):
-            possibility_index.append([x for x in range(1, usable_ap + 1, 1)])
+            possibility_index.append([x for x in range(0, usable_ap + 1, 1)])
 
         all_combinations = itertools.product(*possibility_index)
         #filtering out possibilities that don't use all of the available points
