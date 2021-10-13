@@ -48,7 +48,7 @@ class DamageSimulator:
         # Adding this variable
         self.const_offset = config['app_settings']['desired_ap_to_constitution']
         self.base_stats = config['base_stats']
-        self.level, self.primary, self.primary_base, self.secondary, self.secondary_dmg = config['character'].values()
+        self.level, self.primary, self.primary_base, self.secondary, self.secondary_base = config['character'].values()
         self.attributes, self.primary_data, self.secondary_data = self.pop_attrs(self.primary, self.secondary, config['weapons'])
         self.simulations = self.pop_possibilities(self.const_offset)
 
@@ -142,11 +142,11 @@ class DamageSimulator:
             if self.secondary_data['multi']:
                 secondary_main_attr = configuration[self.attributes.index(self.secondary_data['attr1'])]
                 secondary_sub_attr = configuration[self.attributes.index(self.secondary_data['attr2'])]
-                ret.append(self.calculate_damage_two_attr(self.primary_base, self.level, secondary_main_attr, secondary_sub_attr, self.base_stats[self.secondary_data['attr1']], self.base_stats[self.secondary_data['attr2']]))
+                ret.append(self.calculate_damage_two_attr(self.secondary_base, self.level, secondary_main_attr, secondary_sub_attr, self.base_stats[self.secondary_data['attr1']], self.base_stats[self.secondary_data['attr2']]))
 
             else:
                 secondary_main_attr = configuration[self.attributes.index(self.secondary_data['attr1'])]
-                ret.append(self.calculate_damage_one_attr(self.primary_base, self.level, secondary_main_attr, self.base_stats[self.secondary_data['attr1']]))
+                ret.append(self.calculate_damage_one_attr(self.secondary_base, self.level, secondary_main_attr, self.base_stats[self.secondary_data['attr1']]))
 
             ret.append(sum([ret[-1], ret[-2]]))
             yield ret
