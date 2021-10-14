@@ -11,9 +11,11 @@ import pandas as pd
         for their current build at their level. Notes below:
     
     NOTES:
+        Most of the information comes from this video:
         https://youtu.be/CxC_Vn31ibI?t=135
-        Base dmg * Scaling * Attributes = Dmg 
-        Scaling = 2.5 * level
+        However, the correct formula is
+        Base dmg * (Scaling + Attributes) = Dmg
+        Scaling = 2.5 * (level-1)
         Number at the top includes scaling for attributes, player level (2.5% per level)
         Weapons with 1 attribute scale per level sections
         ---------------------------------------------------
@@ -24,7 +26,7 @@ import pandas as pd
         251-300: 9.1 per 10   / point x 50  -> max: 45.5   % 
         301+:    7.8 per 10   / point x 
 
-        Weapons with 2 attribute scale per level sections (primary) (0.9)
+        Weapons with 2 attribute scale per level sections (primary) (0.9 times single attribute scaling)
         -----------------------------------------------------------------
         0-100:   14.63 / point x 100 -> max: 146.25 % 
         101-150: 11.7  / point x 50  -> max: 58.50  %
@@ -33,7 +35,7 @@ import pandas as pd
         251-300: 8.19  / point x 50  -> max: 40.95  % 
         301+:    7.02  / point x x
 
-        Weapons with 2 attribute scale per level sections (secondary) (0.65)
+        Weapons with 2 attribute scale per level sections (secondary) (0.65 times single attribute scaling)
         --------------------------------------------------------------------
         0-100:   10.56 / point x 100 -> max: 105.63 % 
         101-150: 8.45  / point x 50  -> max: 42.25  %
@@ -47,7 +49,7 @@ class DamageSimulator:
         # Adding this variable
         self.const_offset = config['app_settings']['desired_ap_to_constitution']
         self.base_stats = config['base_stats']
-        self.level, self.primary, self.primary_base, self.secondary, self.secondary_dmg = config['character'].values()
+        self.level, self.primary, self.primary_base, self.secondary, self.secondary_base = config['character'].values()
         self.attributes, self.primary_data, self.secondary_data = self.pop_attrs(self.primary, self.secondary, config['weapons'])
         self.simulations = self.pop_possibilities(self.const_offset)
 
@@ -141,11 +143,11 @@ class DamageSimulator:
             if self.secondary_data['multi']:
                 secondary_main_attr = configuration[self.attributes.index(self.secondary_data['attr1'])]
                 secondary_sub_attr = configuration[self.attributes.index(self.secondary_data['attr2'])]
-                ret.append(self.calculate_damage_two_attr(self.primary_base, self.level, secondary_main_attr, secondary_sub_attr, self.base_stats[self.secondary_data['attr1']], self.base_stats[self.secondary_data['attr2']]))
+                ret.append(self.calculate_damage_two_attr(self.secondary_base, self.level, secondary_main_attr, secondary_sub_attr, self.base_stats[self.secondary_data['attr1']], self.base_stats[self.secondary_data['attr2']]))
 
             else:
                 secondary_main_attr = configuration[self.attributes.index(self.secondary_data['attr1'])]
-                ret.append(self.calculate_damage_one_attr(self.primary_base, self.level, secondary_main_attr, self.base_stats[self.secondary_data['attr1']]))
+                ret.append(self.calculate_damage_one_attr(self.secondary_base, self.level, secondary_main_attr, self.base_stats[self.secondary_data['attr1']]))
 
             ret.append(sum([ret[-1], ret[-2]]))
             yield ret
