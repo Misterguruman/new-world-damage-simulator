@@ -156,6 +156,9 @@ class DamageSimulator:
         possibility_index = []
         usable_ap = self.calculate_available_ap(self.level) - const_offset
         
+        if usable_ap < 0:
+            usable_ap = 0
+        
         for x in range(len(self.attributes)):
             possibility_index.append([x for x in range(0, usable_ap + 1, 1)])
 
