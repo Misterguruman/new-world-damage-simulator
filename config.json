@@ -51,17 +51,17 @@
         }
     },
     "base_stats": {
-        "Strength": 158,
-        "Dexterity": 22,
+        "Strength": 22,
+        "Dexterity": 158,
         "Intelligence": 5,
         "Focus": 11,
         "Constitution": 49
     },
     "character": {
-        "level": 45,
-        "primary_weapon": "Great Axe",
-        "primary_base_dmg": 158,
-        "secondary_weapon": "Hatchet",
+        "level": 36,
+        "primary_weapon": "Bow",
+        "primary_base_dmg": 128,
+        "secondary_weapon": "Rapier",
         "secondary_base_dmg": 128
     },
     "app_settings": {

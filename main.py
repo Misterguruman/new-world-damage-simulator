@@ -1,5 +1,4 @@
 import itertools, json
-import numpy as np
 import pandas as pd
 
 """
@@ -59,13 +58,13 @@ class DamageSimulator:
             return result
         
         elif 14 <= level <= 40:
-            return (level - 13) * 3 + 24
+            return self.calculate_available_ap(13) + (level - 13) * 3
         
         elif 41 <= level <= 55:
-            return (level - 40) * 4 + 105
+            return self.calculate_available_ap(40) + (level - 40) * 4
 
         elif 56 <= level <= 60:
-            return (level - 55) * 5 + 165
+            return self.calculate_available_ap(55) + (level - 55) * 5
 
     def calculate_level_scaling(self, level):
         return (level-1)*.025
