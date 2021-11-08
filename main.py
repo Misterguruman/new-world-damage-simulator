@@ -7,7 +7,8 @@ import pandas as pd
     
     Instructions: Respec your Attribute Points with your armor and weapons attached, fill out the  
 
-    Description: A tool designed to allow New World players to enter their character information and find the best possible Attribute Point combination \
+    Description: A tool designed to allow New World players to enter their character information 
+        and find the best possible Attribute Point combination
         for their current build at their level. Notes below:
     
     NOTES:
@@ -44,13 +45,16 @@ import pandas as pd
         251-300: 5.92  / point x 50  -> max: 29.58  % 
         301+:    5.07  / point x 
 """
+
+
 class DamageSimulator:
     def __init__(self, config):
         # Adding this variable
         self.const_offset = config['app_settings']['desired_ap_to_constitution']
         self.base_stats = config['base_stats']
         self.level, self.primary, self.primary_base, self.secondary, self.secondary_base = config['character'].values()
-        self.attributes, self.primary_data, self.secondary_data = self.pop_attrs(self.primary, self.secondary, config['weapons'])
+        self.attributes, self.primary_data, self.secondary_data = self.pop_attrs(self.primary, self.secondary,
+                                                                                 config['weapons'])
         self.simulations = self.pop_possibilities(self.const_offset)
 
     # https://newworld.fandom.com/wiki/Attributes
@@ -68,24 +72,25 @@ class DamageSimulator:
         elif 56 <= level <= 60:
             return self.calculate_available_ap(55) + (level - 55) * 5
 
-    def calculate_level_scaling(self, level):
-        return (level-1)*.025
+    @staticmethod
+    def calculate_level_scaling(level):
+        return (level-1) * .025
 
     # start at 5, ignore first 5 of any stat
     def calculate_ap_scaling(self, stat):
         if 5 <= stat <= 100:
             return (stat - 5) * 0.01625
         
-        elif 101 <= stat <= 150:
+        elif stat <= 150:
             return self.calculate_ap_scaling(100) + ((stat - 100) * 0.013)
 
-        elif 151 <= stat <= 200:
+        elif stat <= 200:
             return self.calculate_ap_scaling(150) + ((stat - 150) * 0.0117)
         
-        elif 201 <= stat <= 250:
+        elif stat <= 250:
             return self.calculate_ap_scaling(200) + ((stat - 200) * 0.0104)
 
-        elif 251 <= stat <= 300:
+        elif stat <= 300:
             return self.calculate_ap_scaling(250) + ((stat - 250) * 0.0091)
 
         elif 301 <= stat:
@@ -96,14 +101,16 @@ class DamageSimulator:
 
     def calculate_damage_one_attr(self, b_dmg, lvl, attr, base_attr_level):
         levelscaling = self.calculate_level_scaling(lvl)
-        apscaling = self.calculate_ap_scaling(attr)
+        apscaling = self.calculate_ap_scaling(attr + base_attr_level)
         base = b_dmg
-        return b_dmg * ( self.calculate_level_scaling(lvl) + self.calculate_ap_scaling(attr + base_attr_level) + 1 )
+        return base * (levelscaling + apscaling + 1)
 
-    def calculate_damage_two_attr(self, b_dmg, lvl, attr_primary, attr_secondary, base_attr_level_primary, base_attr_level_secondary):
-        return b_dmg * ( 1 + self.calculate_level_scaling(lvl) + self.calculate_ap_scaling(attr_primary + base_attr_level_primary) * 0.9 + self.calculate_ap_scaling(attr_secondary + base_attr_level_secondary) * 0.65 )
+    def calculate_damage_two_attr(self, b_dmg, lvl, attr_primary, attr_secondary, base_attr_level_primary,
+                                  base_attr_level_secondary):
+        return b_dmg * (1 + self.calculate_level_scaling(lvl) + self.calculate_ap_scaling(attr_primary + base_attr_level_primary) * 0.9 + self.calculate_ap_scaling(attr_secondary + base_attr_level_secondary) * 0.65)
 
-    def pop_attrs(self, primary, secondary, weapon_data):
+    @staticmethod
+    def pop_attrs(primary, secondary, weapon_data):
         ret = []
         primary_data = weapon_data[primary]
         secondary_data = weapon_data[secondary]
@@ -125,7 +132,7 @@ class DamageSimulator:
             if secondary_data['attr1'] not in ret:
                 ret.append(secondary_data['attr1'])
 
-        return (ret, primary_data, secondary_data)        
+        return ret, primary_data, secondary_data
 
     def generate_simulation(self, possible_ap_configurations):
         for configuration in possible_ap_configurations:
@@ -160,15 +167,17 @@ class DamageSimulator:
             possibility_index.append([x for x in range(0, usable_ap + 1, 1)])
 
         all_combinations = itertools.product(*possibility_index)
-        #filtering out possibilities that don't use all of the available points
+        # filtering out possibilities that don't use all of the available points
         all_combinations = [x for x in all_combinations if sum(x) == usable_ap]
 
         simulation_data = [x for x in self.generate_simulation(all_combinations)]
 
-        simulation_data =  pd.DataFrame(simulation_data, columns = self.attributes + ["Primary Weapon Damage", "Secondary Weapon Damage", "Combined Damage"])
-        simulation_data.sort_values(["Combined Damage"], ascending=False, inplace=True)
+        simulation_data = pd.DataFrame(simulation_data, columns=self.attributes + ["Primary Weapon Damage",
+                                                                                   "Secondary Weapon Damage",
+                                                                                   "Combined Damage"])
+        simulation_data.sort_values(by="Combined Damage", ascending=False, inplace=True)
         print("Simulations complete, printing top results, export of data can be found in this directory as output.csv")
-        print(simulation_data.head(4))
+        print(simulation_data.head().to_string(index=False))
 
         return simulation_data
 
@@ -176,13 +185,8 @@ class DamageSimulator:
         self.simulations.to_csv('output.csv', index=False, header=True)
 
 
-
-def get_config():
+if __name__ == '__main__':
     with open('config.json') as f:
         d = json.loads(f.read())
-
-    return d
-
-if __name__ == '__main__':
-    d = DamageSimulator(get_config())
+    d = DamageSimulator(d)
     d.export_data()
